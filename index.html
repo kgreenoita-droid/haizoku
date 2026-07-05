@@ -6,6 +6,7 @@
 <title>配属可能日の確認｜入国後講習センター</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="config.js"></script>
 <script src="core.js"></script>
 <style>
   :root{
@@ -170,10 +171,11 @@ const C=window.KoshuCore;
 let CAL=null;
 let cls='一般（男）', ampm='AM', last=null;
 
-/* ===== 送信先設定（GAS WebアプリのURLとトークンを貼り付け）=====
-   未設定（空）の場合は送信せず、計算だけ動作します。 */
-const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwi00m0rpNGEEQZF4XdUM2rWBu1xcQRSAmaLmatocQFhosw780baXROCks8I2AVcrWa/exec';   // 例: 'https://script.google.com/macros/s/XXXX/exec'
-const LOG_TOKEN    = 'cebnter-haizoku-2026';   // GAS側と一致させる合言葉（任意の文字列）
+/* ===== 送信先設定 =====
+   URLと合言葉は config.js に記載します（このファイルには書きません）。
+   config.js が無い／未設定なら送信せず、計算だけ動作します。 */
+const LOG_ENDPOINT = (window.KOSHU_CONFIG && window.KOSHU_CONFIG.LOG_ENDPOINT) || '';
+const LOG_TOKEN    = (window.KOSHU_CONFIG && window.KOSHU_CONFIG.LOG_TOKEN)    || '';
 
 /* calendar.js を毎回最新で読み込む（ブラウザのキャッシュ対策） */
 function loadCalendar(){
@@ -192,7 +194,8 @@ function boot(){
   const b=document.getElementById('updbar');
   if(!CAL||!CAL.days){ b.className='updbar warn'; b.innerHTML='⚠ <span>講習カレンダーが正しく読み込めませんでした。センターへご連絡ください。</span>'; return; }
   b.className='updbar';
-  b.innerHTML=`✓ <span>データ更新日：<span class="date">${C.fmtJ(CAL.generated)}</span>　／　対象期間 ${C.fmtShort(CAL.range[0])}〜${C.fmtShort(CAL.range[1])}</span>`;
+  const ymd=s=>{const d=C.parseISO(s);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';};
+  b.innerHTML=`✓ <span>データ更新日：<span class="date">${C.fmtJ(CAL.generated)}</span>　／　対象期間 ${ymd(CAL.range[0])} 〜 ${ymd(CAL.range[1])}</span>`;
   const e=document.getElementById('entry');
   e.min=CAL.range[0]; e.max=CAL.range[1];
   if(!e.value){

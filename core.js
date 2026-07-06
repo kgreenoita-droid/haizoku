@@ -91,7 +91,10 @@
                isEntry:(d===entry), isGrad:(d===res.grad), isAssign:(d===res.assignDay)};
       if(u){
         cum+=u.hours;
-        const sub=subjects(cal,d,cls);
+        const sub0=subjects(cal,d,cls);
+        // 介護クラスのみ、表示上「生活」を「日本語」に置き換える（カウントには影響しない）
+        const relabel=v=>(cls==='介護'&&v==='生活')?'日本語':v;
+        const sub={AM:relabel(sub0.AM),PM:relabel(sub0.PM)};
         row.hours=u.hours; row.cum=cum; row.session=u.session;
         if(u.session==='AM') row.subject=sub.AM||sub.PM||'';
         else if(u.session==='PM') row.subject=sub.PM||sub.AM||'';
